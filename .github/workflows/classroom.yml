@@ -1,0 +1,28 @@
+name: GitHub Automated Grading Workflow
+on: [push]
+jobs:
+  build:    
+    name: Autograde
+    runs-on: ubuntu-latest
+    container: rocker/verse:latest
+    defaults:
+      run:
+        shell: Rscript {0}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@master
+      - name: Install dependencies
+        run: |
+          install.packages(c("testthat","tidyverse", "here"))
+        shell: Rscript {0}
+      # - name: Run Tests via bash
+      #   run: tests/test.sh
+      #   shell: bash
+      - name: Run Testthat
+        run: source("tests/testthat.R")
+        shell: Rscript {0}
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test_results
+          path: tests/test_results.csv
